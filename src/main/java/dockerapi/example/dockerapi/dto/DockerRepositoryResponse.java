@@ -1,4 +1,4 @@
-package dockerapi.example.dockerapi.entity;
+package dockerapi.example.dockerapi.dto;
 
 
 import java.util.List;

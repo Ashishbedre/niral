@@ -2,14 +2,14 @@ package dockerapi.example.dockerapi.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dockerapi.example.dockerapi.entity.DockerApiResponse;
+import dockerapi.example.dockerapi.Interface.DockerRepositoryService;
+import dockerapi.example.dockerapi.dto.DockerApiResponse;
 import dockerapi.example.dockerapi.entity.DockerRepository;
-import dockerapi.example.dockerapi.entity.DockerRepositoryResponse;
-import dockerapi.example.dockerapi.repository.DockerRepositoryRepository;
+import dockerapi.example.dockerapi.dto.DockerRepositoryResponse;
+import dockerapi.example.dockerapi.repository.DockerRepositoryhub;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,10 +18,10 @@ import java.util.Optional;
 
 @EnableScheduling
 @Service
-public class DockerRepositoryService {
+public class DockerRepositoryServiceImp implements DockerRepositoryService {
 
     @Autowired
-    private DockerRepositoryRepository repository;
+    private DockerRepositoryhub repository;
 
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
@@ -57,12 +57,12 @@ public class DockerRepositoryService {
         return bearerToken1;
     }
 
-    @Scheduled(cron = "0 0 */2 * * *")
+//    @Scheduled(cron = "0 0 */2 * * *")
     public void gettoken(){
         token=login();
     }
 
-    @Scheduled(fixedDelay = 1000)
+//    @Scheduled(fixedDelay = 1000)
     public void fetchAndSaveRepositories() {
         headers.set("Authorization", "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
