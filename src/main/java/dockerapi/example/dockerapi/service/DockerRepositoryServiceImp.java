@@ -6,10 +6,13 @@ import dockerapi.example.dockerapi.Interface.DockerRepositoryService;
 import dockerapi.example.dockerapi.dto.DockerApiResponse;
 import dockerapi.example.dockerapi.entity.DockerRepository;
 import dockerapi.example.dockerapi.dto.DockerRepositoryResponse;
+import dockerapi.example.dockerapi.helperclass.Token;
 import dockerapi.example.dockerapi.repository.DockerRepositoryhub;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,21 +26,31 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
     @Autowired
     private DockerRepositoryhub repository;
 
+//    Token token = new Token();
+
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
+    @Value("${login.api.url}")
+    private String apiUrllogin;
+    @Value("${user}")
+    private String username;
+    @Value("${password}")
+    private String password;
 
-    String apiUrl1 = "https://hub.docker.com/v2/users/login";
+//    String apiUrl1 = "https://hub.docker.com/v2/users/login";
 
-    String apiUrl = "https://hub.docker.com/v2/namespaces/ashishbedre/repositories";
+//    String apiUrl = "https://hub.docker.com/v2/namespaces/ashishbedre/repositories";
 
-    String token = "";
+//    String token = "";
+//    @Scheduled(fixedDelay = 900000)
     public String login(){
 //        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String jsonBody = "{\"username\": \"ashishbedre\", \"password\": \"123456789\"}";
+        String jsonBody = "{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}";
+
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(
-                apiUrl1,
+                apiUrllogin,
                 HttpMethod.POST,
                 requestEntity,
                 String.class
@@ -58,18 +71,20 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
     }
 
 //    @Scheduled(cron = "0 0 */2 * * *")
-    public void gettoken(){
-        token=login();
+    public String gettoken(){
+        return login();
     }
 
-//    @Scheduled(fixedDelay = 1000)
-    public void fetchAndSaveRepositories() {
-        headers.set("Authorization", "Bearer " + token);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
 
+
+    @Scheduled(fixedDelay = 900000)
+    public void fetchAndSaveRepositories() {
+        headers.set("Authorization", "Bearer " + gettoken());
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        repository.deleteAll();
         // Make the API call
         ResponseEntity<DockerApiResponse> response = restTemplate.exchange(
-                apiUrl,
+                buildDockerHubApiUrl(),
                 HttpMethod.GET,
                 entity,
                 DockerApiResponse.class
@@ -87,5 +102,10 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
                 repository.save(dockerRepository);
             }
         }
+    }
+
+    @Override
+    public String buildDockerHubApiUrl() {
+        return "https://hub.docker.com/v2/namespaces/"+username+"/repositories";
     }
 }
