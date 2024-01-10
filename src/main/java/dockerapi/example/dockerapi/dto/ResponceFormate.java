@@ -1,7 +1,5 @@
 package dockerapi.example.dockerapi.dto;
 
-import dockerapi.example.dockerapi.entity.TagEntity;
-
 import java.util.List;
 
 public class ResponceFormate {
@@ -23,5 +21,35 @@ public class ResponceFormate {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public static class TagEntity {
+
+
+    //    private Long id;
+
+        private String name;
+
+        // Getters and setters
+
+    //    public Long getId() {
+    //        return id;
+    //    }
+
+        public TagEntity(String name) {
+            this.name = name;
+        }
+
+    //    public void setId(Long id) {
+    //        this.id = id;
+    //    }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

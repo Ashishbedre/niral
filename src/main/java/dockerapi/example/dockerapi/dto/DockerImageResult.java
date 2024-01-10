@@ -1,7 +1,5 @@
 package dockerapi.example.dockerapi.dto;
 
-import dockerapi.example.dockerapi.dto.DockerImage;
-
 import java.util.List;
 
 public class DockerImageResult {
@@ -150,5 +148,6 @@ public class DockerImageResult {
     public void setDigest(String digest) {
         this.digest = digest;
     }
-}
+
+  }
 

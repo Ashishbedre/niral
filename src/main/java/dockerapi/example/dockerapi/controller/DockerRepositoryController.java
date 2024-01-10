@@ -1,9 +1,6 @@
 package dockerapi.example.dockerapi.controller;
 
 import dockerapi.example.dockerapi.dto.ResponceFormate;
-import dockerapi.example.dockerapi.entity.DockerRepository;
-import dockerapi.example.dockerapi.entity.RepositoryEntity;
-import dockerapi.example.dockerapi.entity.TagEntity;
 import dockerapi.example.dockerapi.service.DockerRepositoryServiceImp;
 import dockerapi.example.dockerapi.service.TagServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;

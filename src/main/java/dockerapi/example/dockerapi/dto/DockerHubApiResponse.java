@@ -1,8 +1,6 @@
 package dockerapi.example.dockerapi.dto;
 
 
-import dockerapi.example.dockerapi.entity.RepositoryEntity;
-
 import java.util.List;
 
 public class DockerHubApiResponse {

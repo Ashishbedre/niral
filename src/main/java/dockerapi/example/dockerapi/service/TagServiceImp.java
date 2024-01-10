@@ -1,14 +1,11 @@
 package dockerapi.example.dockerapi.service;
 
 import dockerapi.example.dockerapi.Interface.TagService;
-import dockerapi.example.dockerapi.dto.DockerImageInfo;
-import dockerapi.example.dockerapi.dto.DockerImageResult;
-import dockerapi.example.dockerapi.dto.ResponceFormate;
-import dockerapi.example.dockerapi.entity.*;
-import dockerapi.example.dockerapi.repository.DockerRepositoryhub;
-import dockerapi.example.dockerapi.repository.TagRepository;
+import dockerapi.example.dockerapi.dto.*;
+//import dockerapi.example.dockerapi.repository.DockerRepositoryhub;
+//import dockerapi.example.dockerapi.repository.TagRepository;
+import dockerapi.example.dockerapi.entity.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,53 +21,87 @@ import java.util.List;
 @Service
 public class TagServiceImp implements TagService {
 
-    @Autowired
-    private DockerRepositoryhub repository;
-    @Autowired
-    private TagRepository  tagRepository;
 
+    @Autowired
+    private AppConfig appConfig;
     @Autowired
     private DockerRepositoryServiceImp dockerRepositoryServiceImp;
-
-//    @Value("${myapp.api.url}")
-//    private String apiUrl;
 
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
 
-//    String apiUrl = "https://hub.docker.com/v2/namespaces/ashishbedre/repositories/ashish/tags";
-
     @Override
-//    @Scheduled(fixedDelay = 9000000)
     public List<ResponceFormate> getAllDockerRepository() {
-        List<DockerRepository> find_all = repository.findAll();
-        List<RepositoryEntity> repositoryEntityReturn = new ArrayList<>();
+//        List<DockerRepository> find_all =dockerRepositoryServiceImp.fetchAndSaveRepositories();
+//        List<RepositoryEntity> repositoryEntityReturn = new ArrayList<>();
+//        for (DockerRepository repositoryNameAndNamespace : find_all) {
+//            String dockerHubApiUrl = buildDockerHubApiUrl(repositoryNameAndNamespace.getNamespace(), repositoryNameAndNamespace.getName());
+//            List<DockerImageResult> apiResponse = fetchAndSaveTags(dockerHubApiUrl);
+//            RepositoryEntity repositoryEntity = new RepositoryEntity();
+//            List<ResponceFormate.TagEntity> tags = new ArrayList<>();
+//            for (DockerImageResult repository1 : apiResponse) {
+//                tags.add(new ResponceFormate.TagEntity(repository1.getName()));
+//            }
+//            repositoryEntity.setRepository(repositoryNameAndNamespace.getName());
+//            repositoryEntity.setTags(tags);
+//            System.out.println(repositoryNameAndNamespace.getName());
+//            for(ResponceFormate.TagEntity ex : tags){
+//                System.out.println(ex.getName());
+//            }
+//            repositoryEntityReturn.add(repositoryEntity);
+//        }
+        List<DockerRepository> find_all =dockerRepositoryServiceImp.fetchAndSaveRepositories();
+        List<ResponceFormate> ResponceFormates = new ArrayList<>();
         for (DockerRepository repositoryNameAndNamespace : find_all) {
             String dockerHubApiUrl = buildDockerHubApiUrl(repositoryNameAndNamespace.getNamespace(), repositoryNameAndNamespace.getName());
             List<DockerImageResult> apiResponse = fetchAndSaveTags(dockerHubApiUrl);
-            RepositoryEntity repositoryEntity = new RepositoryEntity();
-            List<TagEntity> tags = new ArrayList<>();
+            ResponceFormate repositoryEntity = new ResponceFormate();
+            List<String> tags = new ArrayList<>();
             for (DockerImageResult repository1 : apiResponse) {
-                tags.add(new TagEntity(repository1.getName()));
+                tags.add(repository1.getName());
             }
             repositoryEntity.setRepository(repositoryNameAndNamespace.getName());
             repositoryEntity.setTags(tags);
             System.out.println(repositoryNameAndNamespace.getName());
-            for(TagEntity ex : tags){
-                System.out.println(ex.getName());
+            for(String ex : tags){
+                System.out.println(ex);
             }
-            repositoryEntityReturn.add(repositoryEntity);
-//            tagRepository.save(repositoryEntity);
+            ResponceFormates.add(repositoryEntity);
         }
-
-        //for repositoryEntityReturn to TagResponceFormate
+        return ResponceFormates;
+    }
+//
+//    @Override
+//    public List<ResponceFormate> formatTheEntity(List<RepositoryEntity> repositoryEntityReturn) {
+//        //ashish
+////        List<DockerRepository> find_all =dockerRepositoryServiceImp.fetchAndSaveRepositories();
+////        List<ResponceFormate> ResponceFormates1 = new ArrayList<>();
+////        for (DockerRepository repositoryNameAndNamespace : find_all) {
+////            String dockerHubApiUrl = buildDockerHubApiUrl(repositoryNameAndNamespace.getNamespace(), repositoryNameAndNamespace.getName());
+////            List<DockerImageResult> apiResponse = fetchAndSaveTags(dockerHubApiUrl);
+////            ResponceFormate repositoryEntity = new ResponceFormate();
+////            List<String> tags = new ArrayList<>();
+////            for (DockerImageResult repository1 : apiResponse) {
+////                tags.add(repository1.getName());
+////            }
+////            repositoryEntity.setRepository(repositoryNameAndNamespace.getName());
+////            repositoryEntity.setTags(tags);
+////            System.out.println(repositoryNameAndNamespace.getName());
+////            for(String ex : tags){
+////                System.out.println(ex);
+////            }
+////            ResponceFormates1.add(repositoryEntity);
+////        }
+//
+//        ///
+//        List<ResponceFormate> ResponceFormates = new ArrayList<>();
 //        for(RepositoryEntity format :repositoryEntityReturn ){
 //            String repo = format.getRepository();
-//            List<TagEntity> tag = format.getTags();
+//            List<ResponceFormate.TagEntity> tag = format.getTags();
 //            ResponceFormate responce = new ResponceFormate();
 //            responce.setRepository(repo);
 //            List<String> tagEntity = new ArrayList<>();
-//            for(TagEntity copy :  tag){
+//            for(ResponceFormate.TagEntity copy :  tag){
 //                String copyTag = copy.getName();
 //                tagEntity.add(copyTag);
 //            }
@@ -78,30 +109,8 @@ public class TagServiceImp implements TagService {
 //
 //            ResponceFormates.add(responce);
 //        }
-
-        return formatTheEntity(repositoryEntityReturn);
-    }
-
-    @Override
-    public List<ResponceFormate> formatTheEntity(List<RepositoryEntity> repositoryEntityReturn) {
-        //for repositoryEntityReturn to TagResponceFormate
-        List<ResponceFormate> ResponceFormates = new ArrayList<>();
-        for(RepositoryEntity format :repositoryEntityReturn ){
-            String repo = format.getRepository();
-            List<TagEntity> tag = format.getTags();
-            ResponceFormate responce = new ResponceFormate();
-            responce.setRepository(repo);
-            List<String> tagEntity = new ArrayList<>();
-            for(TagEntity copy :  tag){
-                String copyTag = copy.getName();
-                tagEntity.add(copyTag);
-            }
-            responce.setTags(tagEntity);
-
-            ResponceFormates.add(responce);
-        }
-        return ResponceFormates;
-    }
+//        return ResponceFormates;
+//    }
 
     @Override
     public String buildDockerHubApiUrl(String namespace, String repository) {
@@ -110,7 +119,7 @@ public class TagServiceImp implements TagService {
 
     @Override
     public List<DockerImageResult> fetchAndSaveTags(String apiUrl) {
-        headers.set("Authorization", "Bearer " +dockerRepositoryServiceImp.gettoken() );
+        headers.set("Authorization", "Bearer " +appConfig.getGlobalVariable() );
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // Make the API call
