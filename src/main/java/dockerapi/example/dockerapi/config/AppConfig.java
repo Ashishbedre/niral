@@ -1,4 +1,4 @@
-package dockerapi.example.dockerapi.entity.config;
+package dockerapi.example.dockerapi.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

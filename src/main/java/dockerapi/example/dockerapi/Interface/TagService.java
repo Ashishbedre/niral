@@ -1,8 +1,6 @@
 package dockerapi.example.dockerapi.Interface;
 
 import dockerapi.example.dockerapi.dto.DockerImageResult;
-import dockerapi.example.dockerapi.dto.Repository;
-import dockerapi.example.dockerapi.dto.RepositoryEntity;
 import dockerapi.example.dockerapi.dto.ResponceFormate;
 
 import java.util.List;
