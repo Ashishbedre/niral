@@ -43,8 +43,8 @@ public class TagServiceImp implements TagService {
             List<DockerImageResult> apiResponse = fetchAndSaveTags(dockerHubApiUrl);
             ResponceFormate repositoryEntity = new ResponceFormate();
             List<String> tags = new ArrayList<>();
-            for (DockerImageResult repository : apiResponse) {
-                tags.add(repository.getName());
+            for (DockerImageResult repo : apiResponse) {
+                tags.add(repo.getName());
             }
             repositoryEntity.setRepository(repositoryNameAndNamespace.getName());
             repositoryEntity.setTags(tags);
@@ -69,7 +69,10 @@ public class TagServiceImp implements TagService {
                 .bodyToMono(DockerImageInfo.class)
                 .block();
         List<DockerImageResult> repositories = response.getResults();
-        return  repositories;
+        if(repositories==null){
+            return new ArrayList<>();
+        }
+        return repositories;
 
 
     }
