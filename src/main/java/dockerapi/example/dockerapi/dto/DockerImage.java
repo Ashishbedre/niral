@@ -14,9 +14,6 @@ public  class DockerImage {
     private String lastPulled;
     private String lastPushed;
 
-    // Constructors, getters, and setters
-
-
     public String getArchitecture() {
         return architecture;
     }

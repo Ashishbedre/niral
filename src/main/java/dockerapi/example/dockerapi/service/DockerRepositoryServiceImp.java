@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -29,20 +30,16 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
     private AppConfig appConfig;
     @Autowired
     private Config config;
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
     @Value("${login.api.url}")
     private String apiUrllogin;
-    @Value("${user}")
-    private String username;
-    @Value("${password}")
-    private String password;
+    @Value("${repo.api.url}")
+    private String repoUrl;
 
 
 
     public String login(){
         WebClient webClient = WebClient.create();
-        String jsonBody = "{\"username\": \"" +username+ "\", \"password\": \"" +password+ "\"}";
+        String jsonBody = "{\"username\": \"" +config.getUsername()+ "\", \"password\": \"" +config.getPassword()+ "\"}";
         String responseBody = webClient.post()
                 .uri(apiUrllogin)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -53,17 +50,18 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
 
         System.out.println(responseBody);
         ObjectMapper objectMapper = new ObjectMapper();
-        String bearerToken1="";
+        String bearerToken="";
         try {
             JsonNode rootNode = objectMapper.readTree(responseBody);
-            bearerToken1 = rootNode.get("token").asText();
+            bearerToken = rootNode.get("token").asText();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return bearerToken1;
+        return bearerToken;
     }
 
+    @Scheduled(fixedDelay = 24 * 60 * 60 * 1000)
     public String gettoken(){
         String token = login();
         appConfig.setGlobalVariable(token);
@@ -72,7 +70,7 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
 
     public List<DockerRepository> fetchAndSaveRepositories() {
         WebClient webClient = WebClient.create();
-        String authorizationHeader = "Bearer " + gettoken();
+        String authorizationHeader = "Bearer " + appConfig.getGlobalVariable();
         DockerApiResponse response = webClient.get()
                 .uri(buildDockerHubApiUrl())
                 .header(HttpHeaders.AUTHORIZATION, authorizationHeader)
@@ -81,14 +79,14 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
                 .block();
 
 
-        List<DockerRepositoryResponse> repositories =null;
+        List<DockerRepositoryResponse> repositories =response.getResults();
         List<DockerRepository> existingRepository = new ArrayList<>();
         if (repositories == null || repositories.isEmpty()) {
             System.out.println("No Docker repositories found or the list is empty.");
         } else {
-            for (DockerRepositoryResponse repository1 : repositories) {
-                String name = repository1.getName();
-                String namespace = repository1.getNamespace();
+            for (DockerRepositoryResponse repository : repositories) {
+                String name = repository.getName();
+                String namespace = repository.getNamespace();
                 DockerRepository dockerRepository = new DockerRepository();
                 dockerRepository.setName(name);
                 dockerRepository.setNamespace(namespace);
@@ -100,6 +98,7 @@ public class DockerRepositoryServiceImp implements DockerRepositoryService {
 
     @Override
     public String buildDockerHubApiUrl() {
-        return "https://hub.docker.com/v2/namespaces/"+username+"/repositories";
+        return repoUrl+config.getUsername()+"/repositories";
     }
+
 }

@@ -7,6 +7,7 @@ import dockerapi.example.dockerapi.dto.*;
 //import dockerapi.example.dockerapi.repository.TagRepository;
 import dockerapi.example.dockerapi.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,9 +31,8 @@ public class TagServiceImp implements TagService {
     private Config config;
     @Autowired
     private DockerRepositoryServiceImp dockerRepositoryServiceImp;
-
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
+    @Value("${tag.api.url}")
+    private String tagUrl;
 
     @Override
     public List<ResponceFormate> getAllDockerRepository() {
@@ -43,15 +43,11 @@ public class TagServiceImp implements TagService {
             List<DockerImageResult> apiResponse = fetchAndSaveTags(dockerHubApiUrl);
             ResponceFormate repositoryEntity = new ResponceFormate();
             List<String> tags = new ArrayList<>();
-            for (DockerImageResult repository1 : apiResponse) {
-                tags.add(repository1.getName());
+            for (DockerImageResult repository : apiResponse) {
+                tags.add(repository.getName());
             }
             repositoryEntity.setRepository(repositoryNameAndNamespace.getName());
             repositoryEntity.setTags(tags);
-            System.out.println(repositoryNameAndNamespace.getName());
-            for(String ex : tags){
-                System.out.println(ex);
-            }
             responceFormates.add(repositoryEntity);
         }
         return responceFormates;
@@ -59,7 +55,7 @@ public class TagServiceImp implements TagService {
 
     @Override
     public String buildDockerHubApiUrl(String namespace, String repository) {
-        return "https://hub.docker.com/v2/namespaces/" + namespace + "/repositories/" + repository + "/tags";
+        return tagUrl + namespace + "/repositories/" + repository + "/tags";
     }
 
     @Override
@@ -76,6 +72,25 @@ public class TagServiceImp implements TagService {
         return  repositories;
 
 
+    }
+
+    @Override
+    public List<String> filterTheRepository(String repository) {
+        List<String> repositoryDetail = new ArrayList<>();
+        List<ResponceFormate> getDetail = getAllDockerRepository();
+        try{
+            for(ResponceFormate detail : getDetail) {
+                if (detail.getRepository().equals(repository)) {
+                    for (String tag : detail.getTags()) {
+                        repositoryDetail.add(tag);
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return  repositoryDetail;
     }
 
 

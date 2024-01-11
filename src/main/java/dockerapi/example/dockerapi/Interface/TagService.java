@@ -10,4 +10,5 @@ public interface TagService {
 //    public List<ResponceFormate> formatTheEntity(List<RepositoryEntity> repositoryEntityReturn);
     public  String buildDockerHubApiUrl(String namespace, String repository);
     public List<DockerImageResult> fetchAndSaveTags(String apiUrl);
+    public  List<String> filterTheRepository(String repository);
 }

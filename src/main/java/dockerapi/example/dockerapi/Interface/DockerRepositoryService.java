@@ -10,4 +10,5 @@ public interface DockerRepositoryService {
     public String gettoken();
     public List<DockerRepository> fetchAndSaveRepositories();
     public String buildDockerHubApiUrl();
+
 }

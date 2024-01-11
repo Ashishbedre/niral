@@ -4,9 +4,10 @@ import dockerapi.example.dockerapi.dto.ResponceFormate;
 import dockerapi.example.dockerapi.service.DockerRepositoryServiceImp;
 import dockerapi.example.dockerapi.service.TagServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,8 +21,15 @@ public class DockerRepositoryController {
     @Autowired
     private TagServiceImp tagServiceImp;
 
-    @PostMapping("/fetchAndSaveRepositories")
+    @PostMapping("/fetchRepositories")
     public List<ResponceFormate> fetchAndSaveRepositories() {
         return tagServiceImp.getAllDockerRepository();
     }
+
+    @GetMapping("/repositoriesDetail/{repository}")
+    public ResponseEntity<List<String>> repositoriesDetail(@PathVariable String repository){
+        List<String> repositoriesDetail = tagServiceImp.filterTheRepository(repository);
+        return new ResponseEntity<>(repositoriesDetail , HttpStatus.OK);
+    }
+
 }
