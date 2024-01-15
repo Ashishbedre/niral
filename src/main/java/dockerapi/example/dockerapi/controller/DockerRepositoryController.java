@@ -1,5 +1,6 @@
 package dockerapi.example.dockerapi.controller;
 
+import dockerapi.example.dockerapi.Interface.DeleteRepository;
 import dockerapi.example.dockerapi.dto.ResponceFormate;
 import dockerapi.example.dockerapi.service.DockerRepositoryServiceImp;
 import dockerapi.example.dockerapi.service.TagServiceImp;
@@ -21,6 +22,9 @@ public class DockerRepositoryController {
     @Autowired
     private TagServiceImp tagServiceImp;
 
+    @Autowired
+    private DeleteRepository deleteRepository;
+
     @PostMapping("/fetchRepositories")
     public List<ResponceFormate> fetchAndSaveRepositories() {
         return tagServiceImp.getAllDockerRepository();
@@ -31,5 +35,16 @@ public class DockerRepositoryController {
         List<String> repositoriesDetail = tagServiceImp.filterTheRepository(repository);
         return new ResponseEntity<>(repositoriesDetail , HttpStatus.OK);
     }
+
+    @DeleteMapping("/deleteTag/{repository}/{tag}")
+    public ResponseEntity<String>  deleteTag(@PathVariable String repository , @PathVariable String tag){
+        return new ResponseEntity<>(deleteRepository.deleteTag(repository,tag), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteRepository/{repository}")
+    public ResponseEntity<String>  deleteTag(@PathVariable String repository ){
+        return new ResponseEntity<>(deleteRepository.deleteRepo(repository), HttpStatus.OK);
+    }
+
 
 }
