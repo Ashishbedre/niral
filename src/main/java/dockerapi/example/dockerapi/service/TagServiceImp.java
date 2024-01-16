@@ -96,5 +96,16 @@ public class TagServiceImp implements TagService {
         return  repositoryDetail;
     }
 
+    @Override
+    public boolean findTheTag(String repository, String tag) {
+        List<String> tagList = filterTheRepository(repository);
+        for(String tags : tagList){
+            if(tags.equals(tag)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

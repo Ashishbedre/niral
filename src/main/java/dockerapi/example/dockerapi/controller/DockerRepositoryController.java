@@ -46,5 +46,12 @@ public class DockerRepositoryController {
         return new ResponseEntity<>(deleteRepository.deleteRepo(repository), HttpStatus.OK);
     }
 
+    @GetMapping("/FindTheTag/{repository}/{tag}")
+    public ResponseEntity<Boolean> FindTheTag(@PathVariable String repository,@PathVariable String tag){
+        boolean repositoriesDetail = tagServiceImp.findTheTag(repository,tag);
+        return new ResponseEntity<>(repositoriesDetail , HttpStatus.OK);
+    }
+
+
 
 }

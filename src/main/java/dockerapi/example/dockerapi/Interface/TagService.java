@@ -11,4 +11,6 @@ public interface TagService {
     public  String buildDockerHubApiUrl(String namespace, String repository);
     public List<DockerImageResult> fetchAndSaveTags(String apiUrl);
     public  List<String> filterTheRepository(String repository);
+
+    public boolean findTheTag(String repository, String tag);
 }
